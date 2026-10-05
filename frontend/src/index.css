@@ -7,41 +7,73 @@
 }
 
 body {
-  @apply bg-slate-50 text-slate-800 antialiased;
+  @apply bg-slate-50 text-slate-900 antialiased;
   font-feature-settings: "cv02", "cv03", "cv04", "tnum";
 }
 
-.card {
-  @apply rounded-xl border border-slate-200 bg-white shadow-card;
+/* Accessibility font scalers */
+body.font-large {
+  font-size: 108%;
 }
 
-.label {
-  @apply text-[11px] font-semibold uppercase tracking-wide text-slate-500;
+body.font-larger {
+  font-size: 116%;
 }
 
-.btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 disabled:cursor-not-allowed disabled:opacity-50;
+/* High Contrast Mode */
+body.high-contrast {
+  @apply bg-white text-black;
+  --tw-border-opacity: 1;
 }
-.btn-primary {
-  @apply btn bg-navy-800 text-white hover:bg-navy-700;
-}
-.btn-teal {
-  @apply btn bg-teal-600 text-white hover:bg-teal-500;
-}
-.btn-outline {
-  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
-}
-.btn-danger {
-  @apply btn bg-rose-600 text-white hover:bg-rose-500;
+body.high-contrast .gov-card {
+  border: 2px solid #000 !important;
+  box-shadow: none !important;
 }
 
-.input {
-  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-navy-500 focus:outline-none focus:ring-1 focus:ring-navy-500;
+.gov-card {
+  @apply rounded-xl border border-slate-200 bg-white shadow-card transition-all;
 }
 
-th {
-  @apply px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500;
+.gov-badge {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold;
 }
-td {
-  @apply px-3 py-2.5 text-sm;
+
+/* Official Indian Tricolor header accent bar */
+.tricolor-stripe {
+  background: linear-gradient(
+    90deg,
+    #ea580c 0%,
+    #ea580c 33.3%,
+    #ffffff 33.3%,
+    #ffffff 66.6%,
+    #059669 66.6%,
+    #059669 100%
+  );
+  height: 4px;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Interactive animations */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 3s infinite ease-in-out;
 }

@@ -113,7 +113,7 @@ class ModelService:
                 values = np.asarray(sv, dtype=float)[0]
                 ev = np.asarray(self._explainer.expected_value, dtype=float)
                 baseline = float(ev.ravel()[0]) if ev.size else 0.0
-            except ImportError:
+            except Exception:
                 values = np.zeros(len(FEATURE_ORDER))
                 baseline = 0.0
         else:  # linear model: exact additive contributions (log-odds space)

@@ -124,24 +124,26 @@ def main() -> None:
     # SHAP global importance (TreeExplainer for RF; linear coefficients otherwise).
     # The classifier was trained on the preprocessed (imputed, and scaled for
     # LR) representation, so the background must be transformed identically.
-    import shap  # noqa: WPS433 - imported late so training still works without it
-
-    Xte_pre = X_te.copy()
-    for step_name, step in selected.named_steps.items():
-        if step_name == "clf":
-            break
-        Xte_pre = step.transform(Xte_pre)
-    idx = np.random.RandomState(SEED).choice(
-        len(Xte_pre), size=min(200, len(Xte_pre)), replace=False)
-    background = np.asarray(Xte_pre)[idx]
     if hasattr(clf, "estimators_"):
-        explainer = shap.TreeExplainer(clf)
-        sv = explainer.shap_values(background, silent=True)
-        if isinstance(sv, list):
-            sv = sv[1]
-        mean_abs = np.abs(np.asarray(sv, dtype=float)).mean(axis=0)
-        shap_global = {f: round(float(v), 4) for f, v in zip(FEATURE_ORDER, mean_abs)}
-        shap_global = dict(sorted(shap_global.items(), key=lambda kv: kv[1], reverse=True))
+        try:
+            import shap
+            Xte_pre = X_te.copy()
+            for step_name, step in selected.named_steps.items():
+                if step_name == "clf":
+                    break
+                Xte_pre = step.transform(Xte_pre)
+            idx = np.random.RandomState(SEED).choice(
+                len(Xte_pre), size=min(200, len(Xte_pre)), replace=False)
+            background = np.asarray(Xte_pre)[idx]
+            explainer = shap.TreeExplainer(clf)
+            sv = explainer.shap_values(background, silent=True)
+            if isinstance(sv, list):
+                sv = sv[1]
+            mean_abs = np.abs(np.asarray(sv, dtype=float)).mean(axis=0)
+            shap_global = {f: round(float(v), 4) for f, v in zip(FEATURE_ORDER, mean_abs)}
+            shap_global = dict(sorted(shap_global.items(), key=lambda kv: kv[1], reverse=True))
+        except Exception:
+            shap_global = importances
     else:
         shap_global = importances
 

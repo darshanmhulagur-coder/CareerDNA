@@ -1,52 +1,11 @@
-import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import { useAuth } from "./lib/auth";
-import Layout from "./components/Layout";
-import Login from "./pages/Login";
-import Readiness from "./pages/student/Readiness";
-import Passport from "./pages/student/Passport";
-import Career from "./pages/student/Career";
-import PathToReady from "./pages/student/PathToReady";
-import Companies from "./pages/student/Companies";
-import PlacementJourney from "./pages/student/Placement";
-import Queue from "./pages/faculty/Queue";
-import QueueDetail from "./pages/faculty/QueueDetail";
-import Overview from "./pages/tpo/Overview";
-import Skills from "./pages/tpo/Skills";
-import Interventions from "./pages/tpo/Interventions";
-import ImportPage from "./pages/tpo/ImportPage";
-import TpoDepartments from "./pages/tpo/Departments";
-import TpoCompanies from "./pages/tpo/Companies";
-import TpoDrives from "./pages/tpo/Drives";
-import TpoMatching from "./pages/tpo/Matching";
-import VerificationCenter from "./pages/tpo/VerificationCenter";
-import TpoPlacements from "./pages/tpo/Placements";
-import DeptOverview from "./pages/dept/Overview";
-import DeptSkills from "./pages/dept/Skills";
-import DeptPerformance from "./pages/dept/Performance";
-import DeptCompanies from "./pages/dept/Companies";
-import DeptPlacements from "./pages/dept/Placements";
-import DeptDataUpdates from "./pages/dept/DataUpdates";
-import CompanyOverview from "./pages/company/Overview";
-import CompanyDrives from "./pages/company/Drives";
-import CompanySelections from "./pages/company/Selections";
-import ModelPage from "./pages/ModelPage";
-
-function HomeRedirect() {
-  const { user } = useAuth();
-  return <Navigate to={user ? homeFor(user.role) : "/login"} replace />;
-}
-
-function LegacyFacultyRedirect() {
-  const { id } = useParams();
-  return <Navigate to={`/verifier/queue/${id}`} replace />;
-}
-
-function Protected({ role, children }: { role?: string; children: React.ReactNode }) {
-  const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  if (role && user.role !== role) return <Navigate to={homeFor(user.role)} replace />;
-  return <>{children}</>;
-}
+import React from 'react';
+import { MahaTrackingProvider, useMahaTracking } from './context/MahaTrackingContext';
+import { GovHeader } from './components/sih/GovHeader';
+import { TraineePortal } from './components/sih/TraineePortal';
+import { TpPortalView } from './components/sih/TpPortalView';
+import { StatewideDashboard } from './components/sih/StatewideDashboard';
+import { TraineeRegistrationModal } from './components/sih/TraineeRegistrationModal';
+import { ShieldCheck, HeartHandshake, Phone, Globe, ExternalLink } from 'lucide-react';
 
 export function homeFor(role: string) {
   if (role === "STUDENT") return "/student";
@@ -56,51 +15,87 @@ export function homeFor(role: string) {
   return "/tpo";
 }
 
-export default function App() {
-  const { user } = useAuth();
+const MahaKaushalyaApp: React.FC = () => {
+  const { activeRole } = useMahaTracking();
+
   return (
-    <Routes>
-      <Route path="/" element={<HomeRedirect />} />
-      <Route path="/login" element={user ? <Navigate to={homeFor(user.role)} replace /> : <Login />} />
-      <Route element={<Layout />}>
-        {/* student */}
-        <Route path="/student" element={<Protected role="STUDENT"><Readiness /></Protected>} />
-        <Route path="/student/passport" element={<Protected role="STUDENT"><Passport /></Protected>} />
-        <Route path="/student/career" element={<Protected role="STUDENT"><Career /></Protected>} />
-        <Route path="/student/path" element={<Protected role="STUDENT"><PathToReady /></Protected>} />
-        <Route path="/student/companies" element={<Protected role="STUDENT"><Companies /></Protected>} />
-        <Route path="/student/placement" element={<Protected role="STUDENT"><PlacementJourney /></Protected>} />
-        {/* verifier (lightweight faculty verification, TPO-assigned) */}
-        <Route path="/verifier/queue" element={<Protected role="FACULTY"><Queue /></Protected>} />
-        <Route path="/verifier/queue/:id" element={<Protected role="FACULTY"><QueueDetail /></Protected>} />
-        {/* TPO */}
-        <Route path="/tpo" element={<Protected role="TPO_ADMIN"><Overview /></Protected>} />
-        <Route path="/tpo/skills" element={<Protected role="TPO_ADMIN"><Skills /></Protected>} />
-        <Route path="/tpo/interventions" element={<Protected role="TPO_ADMIN"><Interventions /></Protected>} />
-        <Route path="/tpo/import" element={<Protected role="TPO_ADMIN"><ImportPage /></Protected>} />
-        <Route path="/tpo/departments" element={<Protected role="TPO_ADMIN"><TpoDepartments /></Protected>} />
-        <Route path="/tpo/companies" element={<Protected role="TPO_ADMIN"><TpoCompanies /></Protected>} />
-        <Route path="/tpo/drives" element={<Protected role="TPO_ADMIN"><TpoDrives /></Protected>} />
-        <Route path="/tpo/matching" element={<Protected role="TPO_ADMIN"><TpoMatching /></Protected>} />
-        <Route path="/tpo/verification" element={<Protected role="TPO_ADMIN"><VerificationCenter /></Protected>} />
-        <Route path="/tpo/placements" element={<Protected role="TPO_ADMIN"><TpoPlacements /></Protected>} />
-        {/* department */}
-        <Route path="/department" element={<Protected role="DEPARTMENT"><DeptOverview /></Protected>} />
-        <Route path="/department/skills" element={<Protected role="DEPARTMENT"><DeptSkills /></Protected>} />
-        <Route path="/department/performance" element={<Protected role="DEPARTMENT"><DeptPerformance /></Protected>} />
-        <Route path="/department/companies" element={<Protected role="DEPARTMENT"><DeptCompanies /></Protected>} />
-        <Route path="/department/placements" element={<Protected role="DEPARTMENT"><DeptPlacements /></Protected>} />
-        <Route path="/department/data" element={<Protected role="DEPARTMENT"><DeptDataUpdates /></Protected>} />
-        {/* company */}
-        <Route path="/company" element={<Protected role="COMPANY"><CompanyOverview /></Protected>} />
-        <Route path="/company/drives" element={<Protected role="COMPANY"><CompanyDrives /></Protected>} />
-        <Route path="/company/selections" element={<Protected role="COMPANY"><CompanySelections /></Protected>} />
-        <Route path="/model" element={<Protected><ModelPage /></Protected>} />
-        {/* legacy faculty paths -> verifier */}
-        <Route path="/faculty/queue" element={<Navigate to="/verifier/queue" replace />} />
-        <Route path="/faculty/queue/:id" element={<LegacyFacultyRedirect />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-800">
+      {/* Official State Header & Role Switcher */}
+      <GovHeader />
+
+      {/* Main View Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+        {activeRole === 'trainee' && <TraineePortal />}
+        {activeRole === 'tp' && <TpPortalView />}
+        {activeRole === 'admin' && <StatewideDashboard />}
+      </main>
+
+      {/* Trainee Self-Registration Modal (Accessible globally) */}
+      <TraineeRegistrationModal />
+
+      {/* Official Government Footer */}
+      <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Col 1 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-white font-bold text-sm">
+              <ShieldCheck className="w-4 h-4 text-saffron-500" />
+              KaushalSetu Track (National)
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              National Longitudinal Employment Outcomes & Skill Gap Tracking System for the Ministry of Skill Development and Entrepreneurship (MSDE).
+              Built for Smart India Hackathon (SIH) Problem Statement SIH26135.
+            </p>
+          </div>
+
+          {/* Col 2 */}
+          <div className="space-y-1.5 text-[11px]">
+            <div className="text-white font-semibold mb-2">Integrated Portals</div>
+            <div>• Skill India Digital Hub (SIDH / MSDE)</div>
+            <div>• Directorate General of Training (DGT & NCVET)</div>
+            <div>• Employees' Provident Fund Organisation (EPFO UAN API)</div>
+            <div>• Ministry of MSME Udyam Registration Database</div>
+          </div>
+
+          {/* Col 3 */}
+          <div className="space-y-1.5 text-[11px]">
+            <div className="text-white font-semibold mb-2">Longitudinal Milestones</div>
+            <div>• 3-Month Initial Placement Verification</div>
+            <div>• 6-Month Wage Continuity & ESIC Audit</div>
+            <div>• 12-Month Annual Retention & Attrition Tracker</div>
+            <div>• 24-Month Long-Term Career Progression Assessment</div>
+          </div>
+
+          {/* Col 4 */}
+          <div className="space-y-2 text-[11px]">
+            <div className="text-white font-semibold mb-2">National Helpdesk & Grievance</div>
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <Phone className="w-3.5 h-3.5 text-saffron-400" />
+              National Toll-Free Helpline: 1800-120-8040
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              msde.gov.in • skillindiadigital.gov.in
+            </div>
+            <p className="text-[10px] text-slate-500 pt-1">
+              Data complies with the Digital Personal Data Protection (DPDP) Act 2023.
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom copyright bar */}
+        <div className="border-t border-slate-800 py-3 text-center text-[11px] text-slate-500">
+          © {new Date().getFullYear()} Government of India. All rights reserved. Developed for Smart India Hackathon Prototype SIH26135.
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <MahaTrackingProvider>
+      <MahaKaushalyaApp />
+    </MahaTrackingProvider>
   );
 }
